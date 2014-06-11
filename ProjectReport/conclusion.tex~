@@ -1,0 +1,4 @@
+\section{Conclusion} \label{sec:conclusion}
+The Bayesian model assumes the independence between keywords. However, in most cases keywords happen to cooccur. The model we use may lead to some error induced by the assumption of independence. In order to correct this type of error, future work can be done about how to use train dataset to deduce the cooccurrence and incorporate this type of information into the prior knowledge to get more accurate predication of tags. Besides that, the model is limited because we already chose the tags. In order to make the model work in practice, we need to figure out a method to choose the set of the most possible candidate tags, and thus reduce the computation cost.
+
+As for the reason why we choose R over Matlab lies on the fact that R is open source and it has a richer text mining.

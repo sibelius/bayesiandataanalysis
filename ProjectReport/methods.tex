@@ -1,0 +1,101 @@
+\section{Methods and Materials} \label{sec:methods}
+
+The Train set contains 4 columns for each question: Id,Title,Body,Tags.
+Id is the unique identifier for each question.
+Title is the question's title.
+Body is the body of the question.
+Tags is the tags associated with the question.
+The Test set contains the same columns but without the Tags, which we hava to predict.
+
+Given that our data is text, we employ some text mining techniques \citep{feldman2007text} to transform the data into the prior information, likelihood, and evidence necessary for the bayesian data analysis.
+
+\subsection{Preprocessing the Data}
+
+The first step to analyse this data is to perform some preprocessing (e.g., remove punctuation symbols, all characters to lowercase, and so on).
+The steps of our preprocessing approach is showed below:
+
+\begin{enumerate}
+    \item One record per line;
+    \item Concatenate title and body of questions;
+    \item Transform to lowercase;
+    \item Remove HTML tags and entities;
+    \item Remove Stop Words;
+    \item Strip Whitespaces.
+\end{enumerate}
+
+The first step aims to remove newlines inside the body questions become only one record per line.
+After, we join the title and body of questions to have more change to find keywords.
+Next, we transform all the characters to lowercase.
+Subsequently, we remove the HTML tags and entities (e.g., <br />, \&lt;), and stop words.
+Stop words are common words as \emph{the}, \emph{is}, \emph{at}, \emph{which}; they should be removed to improve the text categorization \citep{silva2003importance}.
+Afterwards, we strip the whitespaces, i.e, remove duplicates spaces.
+Finally, we reduce our Train set from 6.8 Gigabyte to only 3.9 Gigabyte (\%57); and we reduce our Test set from 2.2 Gigabyte to only 1.3 Gigabyte (\%59).
+
+Preprocessing the data used the \emph{tr} command \citep{ss642013tr}, python and perl. 
+
+\subsection{The Bayesian Data Analysis Approach}
+
+Our Bayesian Data Analysis Approach uses the Bayes' Theorem in formula \ref{eq:bayesian}:
+
+\begin{equation} \label{eq:bayesian}
+    P(Tag = t | Keyword = k, I) = \frac{P(Tag = t | I) \times P(Keyword = k | Tag = t, I)}{P(Keyword = k | I)} 
+\end{equation}
+
+\begin{enumerate}
+    \item $ P(Tag = t | I) $ is the Prior Information about the Tag = t, i.e., what is the probability of a question has a Tag=\emph{t} without any information about this question.
+    \item $ P(Keyword = k | Tag = t, I) $ is the Likelihood Probability, that is, the probability of a question has a Keyword = \emph{k} given that question has a Tag = \emph{t}.
+    \item $ P(Keyword = k | I) $ is the Evidence, in other words, it is the probability of a Keyword = \emph{k} appear in a question with any Tag.
+    \item $ P(Tag = t | Keyword = k, I) $ is the Posterior Probabiity, i.e, the probability of a question has a Tag = \emph{t} given a Keyword = \emph{k}.
+\end{enumerate}
+
+The formula \ref{eq:bayesian} can be expanded for any number of keywords, as shows in formula \ref{eq:bayesianMultiples}:
+
+\begin{multline} \label{eq:bayesianMultiples}
+    P(Tag = t | Keywords = \{k_{1},k_{2}, \dots , k_{n}\} , I) =  \\
+    \frac{P(Tag = t | I) \times P(Keyword = \{k_{1},k_{2}, \dots , k_{n}\} | Tag = t, I)}{P(Keyword = \{k_{1},k_{2}\}, \dots , k_{n}} | I) 
+\end{multline}
+
+\subsection{From the Trainset to the Probabilities}
+
+This subsection describe the approach to calculate the Prior Information, the Likelihood, and the Evidence using the dataset provided in the Trainset.
+
+The Prior Information of a given Tag=\emph{t} was defined as the frequency of the Tag in the trainset, i.e., the number of questions that has the Tag=\emph{t} divided by the total number of question in the trainset; the formula \ref{eq:prior}
+
+\begin{equation} \label{eq:prior}
+    P(Tag = t | I) = \frac{\text{Number of questions of Tag=t}}{\text{Total number of questions in the trainset}}
+\end{equation}
+
+The Likelihood Probability of a Keyword=\emph{k} given a Tag=\emph{t} is the importance value of the keyword divided by the sum of importance of the other keywords in questions that have Tag=\emph{t}.
+The importance of a keyword is calculate using the Tf-Idf, a numerical statistic that reflects how important a word is to a document in a collection of documents \citep{aizawa2003information}.
+Keywords are the words that best describe a Tag (a.k.a. keywords, topics, summaries).
+It was selected the 20 most important word to be the keywords of a given tag.
+The formula \ref{eq:likelihood} illustrate this calculation.
+Additionally, the formula \ref{eq:likelihoodMult} show how to expand it to a set of keywords.
+
+\begin{equation} \label{eq:likelihood}
+    P(Keyword=k | Tag=t, I) = \frac{\text{Importance value of the Keyword \emph{k}}}{\text{Sum of Importance of the other Keywords of Tag=\emph{t}}}
+\end{equation}
+
+\begin{multline} \label{eq:likelihoodMult}
+    P(Keyword=\{k_{1},k_{2}, \dots , k_{n}\} | Tag=t, I) = \\
+    \prod_{k \: \in \: \{k_{1},k_{2}, \dots , k_{n}\}} P(Keyword=k | Tag=t,I)
+\end{multline}
+
+The Evidence is calculate using the Prior Information of all the Tags and the Likelihood of all the combination of keywords and tags.
+The formula \ref{eq:evidence} show that how to calculate the Evidence given the Prior Information and the Likelihood.
+The formula \ref{eq:evidenceMult} expands to a set of keywords.
+
+\begin{equation} \label{eq:evidence}
+    P(Keyword=k | I) = \sum_{t \: \in \: Tags} P(Keyword=k | Tag=t, I) \times P(Tag=t | I)
+\end{equation}
+
+\begin{multline} \label{eq:evidenceMult}
+    P(Keyword=\{k_{1},k_{2}, \dots , k_{n}\} | I) = \\
+    \sum_{t \: \in \: Tags} \prod_{k \: \in \: \{k_{1},k_{2}, \dots , k_{n}\}} P(Keyword=k | Tag=t,I) \times P(Tag=t | I) 
+\end{multline}
+
+In summary, this subsection described how to calculate the Prior Information, the Likelihood, and the Evidence using the Trainset.
+Hence, it is possible to calculate the Posterior Probability using the keywords of a question.
+
+
+
